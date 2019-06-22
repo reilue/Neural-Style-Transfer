@@ -2,7 +2,8 @@ from __future__ import print_function
 from __future__ import division
 from __future__ import absolute_import
 
-from scipy.misc import imread, imresize, imsave, fromimage, toimage
+import skimage.io as io
+io.use_plugin('pil', 'imread')
 
 from scipy.optimize import fmin_l_bfgs_b
 import numpy as np
@@ -183,7 +184,7 @@ def preprocess_image(image_path, load_dims=False, read_mode="color"):
     global img_width, img_height, img_WIDTH, img_HEIGHT, aspect_ratio
 
     mode = "RGB" if read_mode == "color" else "L"
-    img = imread(image_path, mode=mode)  # Prevents crashes due to PNG images (ARGB)
+    img = io.imread(image_path, mode=mode)  # Prevents crashes due to PNG images (ARGB)
 
     if mode == "L":
         # Expand the 1 channel grayscale to 3 channel grayscale image
@@ -205,7 +206,7 @@ def preprocess_image(image_path, load_dims=False, read_mode="color"):
         else:
             img_height = args.img_size
 
-    img = imresize(img, (img_width, img_height)).astype('float32')
+    img = io.imresize(img, (img_width, img_height)).astype('float32')
 
     # RGB -> BGR
     img = img[:, :, ::-1]
@@ -242,7 +243,7 @@ def deprocess_image(x):
 
 # util function to preserve image color
 def original_color_transform(content, generated, mask=None):
-    generated = fromimage(toimage(generated, mode='RGB'), mode='YCbCr')  # Convert to YCbCr color space
+    generated = np.asarray(io.toimage(generated, mode='RGB'), mode='YCbCr')  # Convert to YCbCr color space
 
     if mask is None:
         generated[:, :, 1:] = content[:, :, 1:]  # Generated CbCr = Content CbCr
@@ -254,7 +255,7 @@ def original_color_transform(content, generated, mask=None):
                 if mask[i, j] == 1:
                     generated[i, j, 1:] = content[i, j, 1:]
 
-    generated = fromimage(toimage(generated, mode='YCbCr'), mode='RGB')  # Convert to RGB color space
+    generated = np.asarray(io.toimage(generated, mode='YCbCr'), mode='RGB')  # Convert to RGB color space
     return generated
 
 
@@ -264,8 +265,8 @@ def load_mask(mask_path, shape, return_mask_img=False):
     else:
         _, width, height, channels = shape
 
-    mask = imread(mask_path, mode="L") # Grayscale mask load
-    mask = imresize(mask, (width, height)).astype('float32')
+    mask = io.imread(mask_path, mode="L") # Grayscale mask load
+    mask = io.imresize(mask, (width, height)).astype('float32')
 
     # Perform binarization of mask
     mask[mask <= 127] = 0
@@ -590,8 +591,8 @@ else:
 
 # We require original image if we are to preserve color in YCbCr mode
 if preserve_color:
-    content = imread(base_image_path, mode="YCbCr")
-    content = imresize(content, (img_width, img_height))
+    content = io.imread(base_image_path, mode="YCbCr")
+    content = io.imresize(content, (img_width, img_height))
 
     if color_mask_present:
         if K.image_dim_ordering() == "th":
@@ -632,14 +633,14 @@ for i in range(num_iter):
     if not rescale_image:
         img_ht = int(img_width * aspect_ratio)
         print("Rescaling Image to (%d, %d)" % (img_width, img_ht))
-        img = imresize(img, (img_width, img_ht), interp=args.rescale_method)
+        img = io.imresize(img, (img_width, img_ht), interp=args.rescale_method)
 
     if rescale_image:
         print("Rescaling Image to (%d, %d)" % (img_WIDTH, img_HEIGHT))
-        img = imresize(img, (img_WIDTH, img_HEIGHT), interp=args.rescale_method)
+        img = io.imresize(img, (img_WIDTH, img_HEIGHT), interp=args.rescale_method)
 
     fname = result_prefix + "_at_iteration_%d.png" % (i + 1)
-    imsave(fname, img)
+    io.imsave(fname, img)
     end_time = time.time()
     print("Image saved as", fname)
     print("Iteration %d completed in %ds" % (i + 1, end_time - start_time))
