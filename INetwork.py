@@ -85,7 +85,7 @@ parser.add_argument("--content_loss_type", default=0, type=int,
 parser.add_argument("--rescale_image", dest="rescale_image", default="False", type=str,
                     help="Rescale image after execution to original dimentions")
 
-parser.add_argument("--rescale_method", dest="rescale_method", default="reflect", type=str,
+parser.add_argument("--rescale_method", dest="rescale_method", default="edge", type=str,
                     help="Rescale image algorithm")
 
 parser.add_argument("--maintain_aspect_ratio", dest="maintain_aspect_ratio", default="True", type=str,
