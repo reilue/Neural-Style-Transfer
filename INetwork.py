@@ -3,7 +3,7 @@ from __future__ import division
 from __future__ import absolute_import
 
 import skimage.io as io
-io.use_plugin('pil', 'imread')
+io.use_plugin('pil')
 
 from scipy.optimize import fmin_l_bfgs_b
 import numpy as np
