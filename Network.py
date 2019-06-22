@@ -2,10 +2,10 @@ from __future__ import print_function
 from __future__ import division
 from __future__ import absolute_import
 
-from scipy.misc import imresize, imsave, fromimage, toimage
+from scipy.misc import fromimage, toimage
 
 import skimage.io as io
-io.use_plugin('pil', 'imread')
+io.use_plugin('pil')
 
 from scipy.optimize import fmin_l_bfgs_b
 import numpy as np
@@ -205,7 +205,7 @@ def preprocess_image(image_path, load_dims=False, read_mode="color"):
         else:
             img_height = args.img_size
 
-    img = imresize(img, (img_width, img_height)).astype('float32')
+    img = io(img, (img_width, img_height)).astype('float32')
 
     # RGB -> BGR
     img = img[:, :, ::-1]
@@ -265,7 +265,7 @@ def load_mask(mask_path, shape, return_mask_img=False):
         _, width, height, channels = shape
 
     mask = io(mask_path, mode="L") # Grayscale mask load
-    mask = imresize(mask, (width, height)).astype('float32')
+    mask = io(mask, (width, height)).astype('float32')
 
     # Perform binarization of mask
     mask[mask <= 127] = 0
@@ -569,7 +569,7 @@ else:
 # We require original image if we are to preserve color in YCbCr mode
 if preserve_color:
     content = io(base_image_path, mode="YCbCr")
-    content = imresize(content, (img_width, img_height))
+    content = io(content, (img_width, img_height))
 
     if color_mask_present:
         if K.image_dim_ordering() == "th":
@@ -610,14 +610,14 @@ for i in range(num_iter):
     if not rescale_image:
         img_ht = int(img_width * aspect_ratio)
         print("Rescaling Image to (%d, %d)" % (img_width, img_ht))
-        img = imresize(img, (img_width, img_ht), interp=args.rescale_method)
+        img = io(img, (img_width, img_ht), interp=args.rescale_method)
 
     if rescale_image:
         print("Rescaling Image to (%d, %d)" % (img_WIDTH, img_HEIGHT))
-        img = imresize(img, (img_WIDTH, img_HEIGHT), interp=args.rescale_method)
+        img = io(img, (img_WIDTH, img_HEIGHT), interp=args.rescale_method)
 
     fname = result_prefix + '_at_iteration_%d.png' % (i + 1)
-    imsave(fname, img)
+    io(fname, img)
     end_time = time.time()
     print('Image saved as', fname)
     print('Iteration %d completed in %ds' % (i + 1, end_time - start_time))
