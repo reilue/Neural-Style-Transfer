@@ -5,6 +5,8 @@ from __future__ import absolute_import
 import skimage.io as io
 io.use_plugin('pil')
 
+from skimage.transform import resize
+
 from scipy.optimize import fmin_l_bfgs_b
 import numpy as np
 import time
@@ -206,7 +208,7 @@ def preprocess_image(image_path, load_dims=False, read_mode="color"):
         else:
             img_height = args.img_size
 
-    img = io.imresize(img, (img_width, img_height)).astype('float32')
+    img = resize(img, (img_width, img_height)).astype('float32')
 
     # RGB -> BGR
     img = img[:, :, ::-1]
@@ -266,7 +268,7 @@ def load_mask(mask_path, shape, return_mask_img=False):
         _, width, height, channels = shape
 
     mask = io.imread(mask_path, mode="L") # Grayscale mask load
-    mask = io.imresize(mask, (width, height)).astype('float32')
+    mask = resize(mask, (width, height)).astype('float32')
 
     # Perform binarization of mask
     mask[mask <= 127] = 0
@@ -592,7 +594,7 @@ else:
 # We require original image if we are to preserve color in YCbCr mode
 if preserve_color:
     content = io.imread(base_image_path, mode="YCbCr")
-    content = io.imresize(content, (img_width, img_height))
+    content = resize(content, (img_width, img_height))
 
     if color_mask_present:
         if K.image_dim_ordering() == "th":
@@ -633,11 +635,11 @@ for i in range(num_iter):
     if not rescale_image:
         img_ht = int(img_width * aspect_ratio)
         print("Rescaling Image to (%d, %d)" % (img_width, img_ht))
-        img = io.imresize(img, (img_width, img_ht), interp=args.rescale_method)
+        img = resize(img, (img_width, img_ht), interp=args.rescale_method)
 
     if rescale_image:
         print("Rescaling Image to (%d, %d)" % (img_WIDTH, img_HEIGHT))
-        img = io.imresize(img, (img_WIDTH, img_HEIGHT), interp=args.rescale_method)
+        img = resize(img, (img_WIDTH, img_HEIGHT), interp=args.rescale_method)
 
     fname = result_prefix + "_at_iteration_%d.png" % (i + 1)
     io.imsave(fname, img)
