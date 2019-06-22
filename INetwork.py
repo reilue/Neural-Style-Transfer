@@ -635,11 +635,11 @@ for i in range(num_iter):
     if not rescale_image:
         img_ht = int(img_width * aspect_ratio)
         print("Rescaling Image to (%d, %d)" % (img_width, img_ht))
-        img = resize(img, (img_width, img_ht), interp=args.rescale_method)
+        img = resize(img, (img_width, img_ht), mode=args.rescale_method)
 
     if rescale_image:
         print("Rescaling Image to (%d, %d)" % (img_WIDTH, img_HEIGHT))
-        img = resize(img, (img_WIDTH, img_HEIGHT), interp=args.rescale_method)
+        img = resize(img, (img_WIDTH, img_HEIGHT), mode=args.rescale_method)
 
     fname = result_prefix + "_at_iteration_%d.png" % (i + 1)
     io.imsave(fname, img)
