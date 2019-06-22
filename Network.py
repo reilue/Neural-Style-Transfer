@@ -2,7 +2,7 @@ from __future__ import print_function
 from __future__ import division
 from __future__ import absolute_import
 
-from scipy.misc import fromimage, toimage
+from scipy.misc import toimage
 
 import skimage.io as io
 io.use_plugin('pil')
@@ -242,7 +242,7 @@ def deprocess_image(x):
 
 # util function to preserve image color
 def original_color_transform(content, generated, mask=None):
-    generated = fromimage(toimage(generated, mode='RGB'), mode='YCbCr')  # Convert to YCbCr color space
+    generated = np.asarray(toimage(generated, mode='RGB'), mode='YCbCr')  # Convert to YCbCr color space
 
     if mask is None:
         generated[:, :, 1:] = content[:, :, 1:]  # Generated CbCr = Content CbCr
@@ -254,7 +254,7 @@ def original_color_transform(content, generated, mask=None):
                 if mask[i, j] == 1:
                     generated[i, j, 1:] = content[i, j, 1:]
 
-    generated = fromimage(toimage(generated, mode='YCbCr'), mode='RGB')  # Convert to RGB color space
+    generated = np.asarray(toimage(generated, mode='YCbCr'), mode='RGB')  # Convert to RGB color space
     return generated
 
 
