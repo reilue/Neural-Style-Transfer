@@ -2,7 +2,7 @@ from __future__ import print_function
 from __future__ import division
 from __future__ import absolute_import
 
-from scipy.misc import imread, imresize, imsave, fromimage, toimage
+from scipy.misc import imresize, imsave, fromimage, toimage
 
 from scipy.optimize import fmin_l_bfgs_b
 import numpy as np
@@ -16,6 +16,9 @@ from keras.layers.convolutional import Convolution2D, AveragePooling2D, MaxPooli
 from keras import backend as K
 from keras.utils.data_utils import get_file
 from keras.utils.layer_utils import convert_all_kernels_in_model
+
+import skimage.io as io
+io.use_plugin('pil', 'imread')
 
 """
 Neural Style Transfer with Keras 2.0.5
@@ -180,7 +183,7 @@ def preprocess_image(image_path, load_dims=False, read_mode="color"):
     global img_width, img_height, img_WIDTH, img_HEIGHT, aspect_ratio
 
     mode = "RGB" if read_mode == "color" else "L"
-    img = imread(image_path, mode=mode)  # Prevents crashes due to PNG images (ARGB)
+    img = io(image_path, mode=mode)  # Prevents crashes due to PNG images (ARGB)
 
     if mode == "L":
         # Expand the 1 channel grayscale to 3 channel grayscale image
@@ -261,7 +264,7 @@ def load_mask(mask_path, shape, return_mask_img=False):
     else:
         _, width, height, channels = shape
 
-    mask = imread(mask_path, mode="L") # Grayscale mask load
+    mask = io(mask_path, mode="L") # Grayscale mask load
     mask = imresize(mask, (width, height)).astype('float32')
 
     # Perform binarization of mask
@@ -565,7 +568,7 @@ else:
 
 # We require original image if we are to preserve color in YCbCr mode
 if preserve_color:
-    content = imread(base_image_path, mode="YCbCr")
+    content = io(base_image_path, mode="YCbCr")
     content = imresize(content, (img_width, img_height))
 
     if color_mask_present:
